@@ -18,13 +18,15 @@ class MainViewModel(private val interactor: GifDataInteractor) : ViewModel() {
     }
 
     fun getNewGif() {
-        try {
-            viewModelScope.launch {
+        viewModelScope.launch {
+            try {
+
                 isLoading.postValue(true)
                 newGif.postValue(interactor.getGifData())
+            } catch (e: Exception) {
+                isLoading.postValue(false)
+                isError.postValue(true)
             }
-        } catch (e: Exception) {
-            isError.value = true
         }
     }
 }

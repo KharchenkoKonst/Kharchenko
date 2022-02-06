@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel by viewModels<MainViewModel> { MainViewModelFactory(ComponentHolder.appComponent.interactor) }
 
-    //    private val gifViewList = mutableListOf<ImageView>()
     private val gifList = mutableListOf<Pair<ImageView, String>>()
     private var currentGifIndex = -1
 
@@ -44,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             onPreviousButtonClicked(binding)
         }
         binding.errorScreen.tryAgainButton.setOnClickListener {
+            binding.errorScreen.root.visibility = GONE
             viewModel.getNewGif()
         }
     }
@@ -146,6 +146,7 @@ class MainActivity : AppCompatActivity() {
                 isFirstResource: Boolean
             ): Boolean {
                 viewModel.isLoading.value = false
+                viewModel.isError.value = false
                 if (currentGifIndex == gifList.lastIndex)
                     binding.gifDescription.text = gifModel.description
                 return false
