@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.viewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -21,7 +22,9 @@ import com.example.kharchenko.presentation.viewmodel.MainViewModelFactory
 class MainActivity : AppCompatActivity() {
 
     private val viewModel by viewModels<MainViewModel> { MainViewModelFactory(ComponentHolder.appComponent.interactor) }
-    private val gifViewList = mutableListOf<ImageView>()
+
+    //    private val gifViewList = mutableListOf<ImageView>()
+    private val gifList = mutableListOf<Pair<ImageView, String>>()
     private var currentGifIndex = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             onPreviousButtonClicked(binding)
         }
         binding.errorScreen.tryAgainButton.setOnClickListener {
-
+            viewModel.getNewGif()
         }
     }
 
@@ -50,12 +53,20 @@ class MainActivity : AppCompatActivity() {
             currentGifIndex--
             binding.gifViewLayout.removeAllViews()
             showCachedGif(binding)
+        } else {
+            Toast.makeText(this, "Уже в начале!", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun onNextButtonClicked(binding: ActivityMainBinding) {
+        if (viewModel.isLoading.value == true && currentGifIndex == gifList.lastIndex) {
+            Toast.makeText(this, "Подождите!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         binding.gifViewLayout.removeAllViews()
-        if (currentGifIndex == gifViewList.lastIndex) {
+        if (currentGifIndex == gifList.lastIndex) {
+            binding.gifDescription.text = ""
             viewModel.getNewGif()
         } else {
             currentGifIndex++
@@ -64,16 +75,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCachedGif(binding: ActivityMainBinding) {
-        binding.gifViewLayout.addView(gifViewList[currentGifIndex])
+        binding.gifViewLayout.addView(gifList[currentGifIndex].first)
+        if (viewModel.isLoading.value == true && currentGifIndex == gifList.lastIndex) {
+            binding.gifDescription.text = ""
+        } else {
+            binding.gifDescription.text = gifList[currentGifIndex].second
+        }
     }
 
     private fun observeViewModel(binding: ActivityMainBinding) {
         viewModel.isLoading.observe(this) {
             if (it == true) {
-                binding.nextButton.isClickable = false
                 showLoadingScreen(binding)
             } else {
-                binding.nextButton.isClickable = true
                 hideLoadingScreen(binding)
             }
         }
@@ -108,6 +122,10 @@ class MainActivity : AppCompatActivity() {
     private fun addGifView(binding: ActivityMainBinding, gifModel: GifModel) {
         val newGifView = ImageView(this)
 
+        gifList.add(Pair(newGifView, gifModel.description))
+        binding.gifViewLayout.addView(newGifView)
+        currentGifIndex++
+
         Glide.with(this).asGif().load(gifModel.url).listener(object : RequestListener<GifDrawable> {
             override fun onLoadFailed(
                 e: GlideException?,
@@ -127,14 +145,12 @@ class MainActivity : AppCompatActivity() {
                 dataSource: DataSource?,
                 isFirstResource: Boolean
             ): Boolean {
-                currentGifIndex++
                 viewModel.isLoading.value = false
+                if (currentGifIndex == gifList.lastIndex)
+                    binding.gifDescription.text = gifModel.description
                 return false
             }
         })
             .into(newGifView)
-
-        gifViewList.add(newGifView)
-        binding.gifViewLayout.addView(newGifView)
     }
 }
