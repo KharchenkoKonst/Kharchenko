@@ -5,15 +5,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".presentation.view.MainActivity">
 
-    <TextView
+
+    <FrameLayout
+        android:id="@+id/gifLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <include
+            android:id="@+id/loadingScreen"
+            layout="@layout/loading_screen"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+        <include
+            android:id="@+id/errorScreen"
+            layout="@layout/error_screen"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/gif_padding"
+            android:paddingVertical="@dimen/gif_padding"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <FrameLayout
+                android:id="@+id/gifViewLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/gif_view_size" />
+            <!--
+                        <ImageView
+                            android:id="@+id/gifView"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/gif_view_size"
+                            app:layout_constraintTop_toTopOf="parent" />
+            -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/small_spacing" />
+
+            <TextView
+                android:id="@+id/gifDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center" />
+
+        </LinearLayout>
+    </FrameLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/medium_spacing"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gifLayout">
+
+        <ImageButton
+            android:id="@+id/previousButton"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:background="@null"
+            android:src="@drawable/ic_previous_button" />
+
+        <View
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size" />
+
+        <ImageButton
+            android:id="@+id/nextButton"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
+            android:background="@null"
+            android:src="@drawable/ic_next_button" />
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
