@@ -1,6 +1,5 @@
 package com.example.kharchenko.presentation.view
 
-import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View.GONE
@@ -23,23 +22,26 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel by viewModels<MainViewModel> { MainViewModelFactory(ComponentHolder.appComponent.interactor) }
     private val gifViewList = mutableListOf<ImageView>()
-    private var currentGifIndex = 0
+    private var currentGifIndex = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setupNavigateButtons(binding)
+        setupButtonsListeners(binding)
         viewModel.getNewGif()
         observeViewModel(binding)
     }
 
-    private fun setupNavigateButtons(binding: ActivityMainBinding) {
+    private fun setupButtonsListeners(binding: ActivityMainBinding) {
         binding.nextButton.setOnClickListener {
             onNextButtonClicked(binding)
         }
         binding.previousButton.setOnClickListener {
             onPreviousButtonClicked(binding)
+        }
+        binding.errorScreen.tryAgainButton.setOnClickListener {
+
         }
     }
 
@@ -52,7 +54,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onNextButtonClicked(binding: ActivityMainBinding) {
-        currentGifIndex++
         binding.gifViewLayout.removeAllViews()
         if (currentGifIndex == gifViewList.lastIndex) {
             viewModel.getNewGif()
@@ -89,9 +90,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showErrorScreen(binding: ActivityMainBinding) {
+        binding.errorScreen.root.visibility = VISIBLE
     }
 
     private fun hideErrorScreen(binding: ActivityMainBinding) {
+        binding.errorScreen.root.visibility = GONE
     }
 
     private fun showLoadingScreen(binding: ActivityMainBinding) {
@@ -124,6 +127,7 @@ class MainActivity : AppCompatActivity() {
                 dataSource: DataSource?,
                 isFirstResource: Boolean
             ): Boolean {
+                currentGifIndex++
                 viewModel.isLoading.value = false
                 return false
             }
